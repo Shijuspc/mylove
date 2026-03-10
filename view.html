@@ -5,6 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>For Isha ❤️</title>
 
+<!-- Chrome Redirect Script -->
+<script>
+(function () {
+
+var ua = navigator.userAgent || navigator.vendor || window.opera;
+
+var isInstagram = ua.indexOf("Instagram") > -1;
+var isFacebook = ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1;
+var isAndroid = ua.toLowerCase().indexOf("android") > -1;
+
+if((isInstagram || isFacebook) && isAndroid){
+
+var url = window.location.href.replace(/^https?:\/\//,'');
+
+window.location.href =
+"intent://" + url +
+"#Intent;scheme=https;package=com.android.chrome;end";
+
+}
+
+})();
+</script>
+
 <style>
 
 body{
@@ -125,13 +148,12 @@ import { getFirestore, collection, addDoc } from "https://www.gstatic.com/fireba
 const firebaseConfig = {
 
 apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
-  authDomain: "remote-videoplayer.firebaseapp.com",
-  projectId: "remote-videoplayer",
-  storageBucket: "remote-videoplayer.firebasestorage.app",
-  messagingSenderId: "978359248102",
-  appId: "1:978359248102:web:c03c62454f8cbf70030727",
-  measurementId: "G-4D3PV2EGMX"
-
+authDomain: "remote-videoplayer.firebaseapp.com",
+projectId: "remote-videoplayer",
+storageBucket: "remote-videoplayer.firebasestorage.app",
+messagingSenderId: "978359248102",
+appId: "1:978359248102:web:c03c62454f8cbf70030727",
+measurementId: "G-4D3PV2EGMX"
 
 };
 
@@ -229,4 +251,3 @@ time:new Date().toString()
 
 </body>
 </html>
-
